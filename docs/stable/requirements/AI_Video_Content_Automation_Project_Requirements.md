@@ -1,17 +1,26 @@
-﻿---
+---
 title: "AI Video Content Automation & Social Media Publishing Platform Requirements"
 document_id: "REQ-AI-VIDEO-001"
-version: "1.0.0"
+version: "1.1.0"
 status: "approved"
 created_date: "2026-10-11"
 last_updated: "2026-10-11"
 owner: "Project Team"
 approval_status: "approved"
 approved_by: "Arun"
-release_version: "v1.0.0"
+release_version: "v1.1.0"
 related_documents:
   - "docs/stable/README.md"
+  - "docs/history/releases/v1.0.0/requirements/AI_Video_Content_Automation_Project_Requirements.md"
 ---
+
+> **Release Notes (v1.1.0):**
+> - **Multi-Region Strategy (Section 17):** Implemented Language-First 3-Cluster distribution model (Global English for US/UK/AU, Spanish cluster, and Asian regional cluster) with 80/20 cost-efficient asset splitting (shared visual base + localized audio/text).
+> - **Regional & Domestic Platforms (Section 18):** Added pluggable `ISocialPlatformAdapter` supporting domestic ecosystems (China: Douyin, Bilibili, Xiaohongshu, WeChat Video Channels; Russia: VK Video; Korea: Naver Clip) with Hong Kong/Asia edge upload gateways.
+> - **Account Strategy Matrix (Section 19):** Added Strategy D (YouTube Multi-Language Audio for long-form + dedicated separate accounts for Shorts/Reels/TikTok).
+> - **Data Architecture (Section 36 & 37):** Architecture updated to MS SQL Server (SSMS SQL) with extended entities (`PartnerAgency`, `RegionalComplianceRule`, `ScriptVariant`, `VideoAssetVariant`, `AIGCWatermarkTemplate`).
+> - **Regional Compliance & AI Watermarking (Section 40.1):** Enforced zero-bypass mandatory AIGC disclosure watermarking (e.g. CAC regulations for China) and local partner verification.
+
 # AI Video Content Automation & Social Media Publishing Platform
 
 ## 1. Project Overview
@@ -704,65 +713,119 @@ Policy Score        98
 
 ---
 
-# 17. Automatic Localization
+# 17. Automatic Localization & Multi-Region Strategy
 
 Support:
 
 ```text
 Original Idea
       ↓
-English
-Hindi
-Gujarati
-Spanish
-French
-Japanese
-etc.
+Language-First Cluster Dispatch
+      ├── Cluster 1: Global English (US, UK, Australia, Global)
+      ├── Cluster 2: Spanish (Latin America & Spain)
+      └── Cluster 3: Asian Regional (Hindi, Japanese, Mandarin, etc.)
 ```
 
-Each version can have:
+### 17.1 The Language-First Cluster Model
+1. **Cluster 1: Global English (United States, Britain, Australia, Canada):**
+   - **Unified Global Distribution:** America, Britain, and Australia share a single global English channel and Instagram account.
+   - **Preserves Tier-1 Monetization:** Aggregates views within high-value advertising regions ($15–$35 RPM) rather than splitting audience authority across three smaller accounts.
+   - **Dialect Handling:** Standard neutral voiceover; vocabulary and spelling adapted where appropriate; scheduler alternates peak publishing times between US afternoon (EST/PST) and UK/Australia evening (GMT/AEST).
 
-- Translated script
-- Localized voice
+2. **Cluster 2: Spanish (Latin America & Spain):**
+   - **Dedicated Accounts:** Operates dedicated accounts (e.g., `@brand_es`).
+   - **Audience & Algorithm Separation:** Isolates Spanish content from English feeds to prevent immediate 3-second scroll-away penalties on Instagram Reels and TikTok.
+   - **Transcreation:** Adapts idioms, cultural hooks, and references for Latin American Spanish (`es-MX`) and European Spanish (`es-ES`).
+
+3. **Cluster 3: Asian Regional (India, Japan, Indonesia, etc.):**
+   - **Dedicated Regional Accounts:** Individual channels/accounts tailored by language (e.g., Hindi `hi-IN`, Japanese `ja-JP`).
+   - **Analytics & Revenue Isolation:** Separates regional advertising RPM ($1–$4) and high-volume viral traffic from Western Tier-1 analytics.
+
+### 17.2 Cost-Efficient Asset Localization (80/20 Rule)
+To avoid tripling or quadrupling AI generation costs:
+- **Visual Foundation (80% of Cost):** Generate video footage, animations, B-roll, and scene composition **once** as a shared visual asset.
+- **Localized Layer (20% of Cost):** Swap only:
+  1. Neural TTS Voiceover (ElevenLabs, Azure Speech, or OpenAI TTS with native regional accents).
+  2. Synchronized Subtitles & Burnt-in Hook Text (`.srt` / FFmpeg text overlays).
+  3. Localized Title, Description, and Thumbnail.
+- **Cost Output:** Produces 3–5 fully localized regional videos for approximately `1.2x–1.4x` the cost of generating a single video.
+
+### 17.3 Quality & Policy Validation
+Each localized variant must have:
+- Translated script (with idiomatic transcreation)
+- Localized neural voice
 - Local subtitles
 - Local title
 - Local description
 - Local hashtags
 - Local thumbnail
 
-Each localized version must independently pass policy validation.
+Each localized version must independently pass policy validation, regional restrictions, and copyright checks before rendering.
 
 ---
 
-# 18. Social Media Publishing Engine
+# 18. Social Media Publishing Engine & Regional Platform Architecture
 
 ```text
                  Publishing Engine
-                       │
-       ┌───────────────┼───────────────┐
-       ↓               ↓               ↓
-   YouTube         Instagram       Facebook
-       ↓               ↓               ↓
-    TikTok          Other          Regional
+                        │
+        ┌───────────────┼───────────────┬──────────────────────┐
+        ↓               ↓               ↓                      ↓
+    YouTube         Instagram       Facebook          Regional & Domestic
+    (Global)        (Global)        (Global)               Platforms
+        ↓               ↓               ↓                      ↓
+     TikTok          Threads            X             ┌────────┴────────┐
+                                                      ↓                 ↓
+                                                China Ecosystem   Russia / Other
+                                                - Douyin          - VK Video
+                                                - Bilibili        - Rutube
+                                                - Xiaohongshu     - Naver Clip
+                                                - WeChat Channels
 ```
 
-Each account:
+### 18.1 Pluggable Platform Adapter Pattern
+All social platforms implement a standardized `ISocialPlatformAdapter` interface:
+- **Authentication & Token Management:** Refresh OAuth 2.0 tokens or regional enterprise API signatures.
+- **Pre-Publish Compliance Hook:** Executes platform-specific compliance checks (e.g., character limits, aspect ratios, banned tags).
+- **Video & Metadata Upload:** Resumable chunked upload with automated exponential-backoff retry mechanics.
+- **Post-Publish Status Tracking:** Captures remote post ID, public URL, publishing timestamp, and publication status.
+- **Analytics Ingestion:** Periodically polls views, watch time, likes, shares, comments, retention curves, and monetization data.
+
+### 18.2 Domestic & Regional Platform Integration (China & Others)
+1. **China Social Media Ecosystem:**
+   - **Target Platforms:** Douyin (Shorts/Reels), Bilibili (Long-form/Knowledge), Xiaohongshu / RED (Lifestyle/Visual), WeChat Video Channels, Kuaishou.
+   - **Account Verification & MCN Support:** Supports Real-Name Verification (实名认证) and corporate MCN (Multi-Channel Network) agency credentials required by Chinese open platform APIs.
+   - **Mandatory AIGC Watermarking:** Automatic stamping of legally mandated AI disclosures (CAC regulation: "本视频由AI合成生成") onto the video canvas prior to upload.
+   - **Network Edge Routing:** Routes upload payloads via Asia / Hong Kong edge proxies or Tencent Cloud / Alibaba Cloud storage to bypass Great Firewall throttling and packet drops.
+   - **Language Support:** Simplified Chinese (`zh-CN`) with fast-paced hook timing (1.5–2 seconds).
+
+2. **Other Domestic Platforms:**
+   - **Russia / CIS:** VKontakte (`VK Video` / `VK Clips`), Rutube.
+   - **South Korea:** Naver Clip, KakaoTV.
+   - **India Domestic:** Josh, Moj, ShareChat short video integrations.
+
+### 18.3 Social Account Data Specification
+Each account record contains:
 
 ```text
-Platform
-Account
-Channel
-Country
-Language
+PlatformId (YouTube, Instagram, Douyin, Bilibili, VK, etc.)
+PlatformCategory (Global vs RegionalDomestic)
+AccountName / Handle
+ChannelId
+CountryCode
+LanguageCode
 Timezone
-Content Categories
-Publishing Schedule
-Access Status
-Token Reference
-Status
+ContentCategories
+PublishingSchedule
+AccessStatus
+TokenReference (Encrypted vault reference)
+RequiresAIGCWatermark (Boolean: true for CN)
+ProxyEndpointUrl (Optional regional gateway)
+PartnerAgencyId (Optional MCN / Local agency reference)
+Status (Active, RateLimited, Expired, Suspended)
 ```
 
-Credentials and tokens must be securely managed and must not be stored as plain text in normal database tables.
+Credentials and tokens must be securely managed in a secrets vault and must never be stored as plain text in database tables.
 
 ---
 
@@ -796,6 +859,14 @@ Tech Hindi
 Tech Gujarati
 Tech Spanish
 ```
+
+### Strategy D — Hybrid Single vs. Multi-Account Distribution Matrix (Recommended)
+1. **YouTube Long-Form Videos:**
+   - **Single Flagship Channel:** Utilize YouTube's native **Multi-Language Audio (MLA)** tracks and multi-language title/description translations on a single video ID. Viewers automatically receive audio matching their device language.
+2. **YouTube Shorts, Instagram Reels, and TikTok:**
+   - **Separate Dedicated Accounts Per Language/Region:** Short-form feeds rely on immediate 3-second retention. Language mixing causes rapid skips that severely penalize account reach.
+3. **Domestic / Isolated Markets (China):**
+   - **Dedicated Domestic Accounts:** Managed through verified local partner agencies/MCNs on Douyin, Bilibili, and Xiaohongshu.
 
 ---
 
@@ -1455,7 +1526,7 @@ A possible Angular + .NET architecture:
  Content Service    AI Service       Publishing Service
        │                 │                 │
        ↓                 ↓                 ↓
- PostgreSQL         AI Providers      Social APIs
+ SSMS SQL       AI Providers      Social APIs
        │
        ↓
  Object Storage
@@ -1522,17 +1593,22 @@ PolicyViolation
 
 SocialPlatform
 SocialAccount
+PartnerAgency
+RegionalComplianceRule
 
 ContentIdea
 ContentIdeaScore
 
 Script
 ScriptVersion
+ScriptVariant
 ScriptApproval
 
 Video
 VideoVersion
 VideoAsset
+VideoAssetVariant
+AIGCWatermarkTemplate
 Thumbnail
 Audio
 Subtitle
@@ -1648,6 +1724,14 @@ BLOCKED
 ---
 
 # 40. Never Bypass Restrictions
+
+## 40.1 Regional Regulatory Compliance & Mandatory AI Disclosures
+The platform must strictly enforce territorial legal regulations:
+1. **Mandatory AI Watermarking:** For jurisdictions requiring AI disclosures (such as China's CAC regulations), the video rendering pipeline must burn the mandated text ("本视频由AI合成生成") into the video stream before publishing.
+2. **Real-Name & Partner Attestation:** Accounts operating in regulated domestic markets must have verified agency attestations before automated publishing is enabled.
+3. **Zero-Bypass Policy:** No user, prompt, or automated scheduler can suppress mandatory regional compliance filters or watermarks.
+
+## 40.2 General Bypass Prevention
 
 The platform must never allow an ordinary user, AI prompt, API request, scheduled job, background worker, bulk-generation process, or automation rule to bypass mandatory restrictions.
 

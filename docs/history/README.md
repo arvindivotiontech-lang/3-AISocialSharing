@@ -21,6 +21,7 @@ folder only when that release actually exists and is being superseded.
 - Do not delete historical records as part of routine cleanup.
 
 ## Release Log
-| Version | Release Date | Approved By | Superseded By | Archived On | Summary of Changes / Reason |
-| --- | --- | --- | --- | --- | --- |
-| — | — | — | — | — | No releases archived yet |
+| Version | Release Date | Approved By | Superseded By | Archived On | Summary of Changes / Reason | Snapshot Link |
+| --- | --- | --- | --- | --- | --- | --- |
+| `1.0.0` | 2026-10-11 | Arun | 1.1.0 | 2026-10-11 | Initial requirements release superseded by v1.1.0 (multi-region clusters, domestic platform adapters, AIGC compliance, and MS SQL Server). | [`releases/v1.0.0/`](releases/v1.0.0/README.md) |
+

@@ -4,15 +4,16 @@
 > architecture, and standards.
 
 ## Current Release
-- Version: 1.0.0
+- Version: 1.1.0
 - Release date: 2026-10-11
 - Approved by: Arun
-- Release notes: Initial release (v1.0.0) of AI Video Content Automation & Social Media Publishing Platform requirements covering project overview, content policy restrictions, script & video generation engines, social publishing scheduler, approval workflows, multi-tenant architecture, analytics, and business optimization loops.
+- Release notes: Release v1.1.0 incorporates the Language-First 3-Cluster multi-region distribution architecture (Global English for US/UK/AU, Spanish, and Asian regions), 80/20 cost-efficient asset localization, domestic/regional platform integrations (China: Douyin, Bilibili, Xiaohongshu; Russia: VK Video; Korea: Naver Clip), mandatory AIGC watermarking compliance, and MS SQL Server database architecture.
 
 ## Approved Documents
 | Document ID | Title | Version | Category | Document Link |
 | --- | --- | --- | --- | --- |
-| `REQ-AI-VIDEO-001` | AI Video Content Automation & Social Media Publishing Platform Requirements | 1.0.0 | Requirements | [`requirements/AI_Video_Content_Automation_Project_Requirements.md`](requirements/AI_Video_Content_Automation_Project_Requirements.md) |
+| `REQ-AI-VIDEO-001` | AI Video Content Automation & Social Media Publishing Platform Requirements | 1.1.0 | Requirements | [`requirements/AI_Video_Content_Automation_Project_Requirements.md`](requirements/AI_Video_Content_Automation_Project_Requirements.md) |
+
 
 
 ## Use this folder for

@@ -45,8 +45,9 @@ Authority: Historical reference only, not current requirements.
 - Preserve released snapshots without modification.
 
 ## Current Project Status
-- Current stable version: 1.0.0
+- Current stable version: 1.1.0
 - Current planning status: Requirements approved
-- Latest release: 1.0.0 (2026-10-11)
+- Latest release: 1.1.0 (2026-10-11)
 - Pending approvals: None
 - Last updated: 2026-10-11
+
