@@ -4,13 +4,16 @@
 > architecture, and standards.
 
 ## Current Release
-- Version: Not released
-- Release date: —
-- Approved by: —
-- Release notes: —
+- Version: 1.0.0
+- Release date: 2026-10-11
+- Approved by: Arun
+- Release notes: Initial release (v1.0.0) of AI Video Content Automation & Social Media Publishing Platform requirements covering project overview, content policy restrictions, script & video generation engines, social publishing scheduler, approval workflows, multi-tenant architecture, analytics, and business optimization loops.
 
-No Stable documentation has been approved yet. Until the first release,
-treat `../working/` drafts as proposals only.
+## Approved Documents
+| Document ID | Title | Version | Category | Document Link |
+| --- | --- | --- | --- | --- |
+| `REQ-AI-VIDEO-001` | AI Video Content Automation & Social Media Publishing Platform Requirements | 1.0.0 | Requirements | [`requirements/AI_Video_Content_Automation_Project_Requirements.md`](requirements/AI_Video_Content_Automation_Project_Requirements.md) |
+
 
 ## Use this folder for
 - Approved business requirements.
